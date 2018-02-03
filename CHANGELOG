@@ -6,6 +6,8 @@
   * GET /api/v3/allOrders weight decreased to 5
   * GET /api/v3/myTrades weight decreased to 5
   * GET /api/v3/account weight decreased to 5
+  * GET /api/v1/depth limit=500 weight decreased to 5
+  * GET /api/v1/depth limit=1000 weight decreased to 10
   * -1003 error message updated to direct users to websockets
 
 ---- 2018-01-20
