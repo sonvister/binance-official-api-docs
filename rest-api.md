@@ -729,13 +729,13 @@ Additional mandatory parameters based on `type`:
 
 Type | Additional mandatory parameters
 ------------ | ------------
-`LIMIT` | `timeInForce`, `quantity`, `price`
-`MARKET` | `quantity`
-`STOP_LOSS` | `quantity`, `stopPrice`
-`STOP_LOSS_LIMIT` | `timeInForce`, `quantity`,  `price`, `stopPrice`
-`TAKE_PROFIT` | `quantity`, `stopPrice`
-`TAKE_PROFIT_LIMIT` | `timeInForce`, `quantity`, `price`, `stopPrice`
-`LIMIT_MAKER` | `quantity`, `price`
+`LIMIT` | `timeInForce`, `price`
+`MARKET` | NONE
+`STOP_LOSS` | `stopPrice`
+`STOP_LOSS_LIMIT` | `timeInForce`, `price`, `stopPrice`
+`TAKE_PROFIT` | `stopPrice`
+`TAKE_PROFIT_LIMIT` | `timeInForce`, `price`, `stopPrice`
+`LIMIT_MAKER` | `price`
 
 Other info:
 
