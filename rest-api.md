@@ -334,8 +334,14 @@ NONE
     "baseAssetPrecision": 8,
     "quoteAsset": "BTC",
     "quotePrecision": 8,
-    "orderTypes": ["LIMIT", "MARKET"],
-    "icebergAllowed": false,
+    "orderTypes": [
+      "LIMIT",
+      "LIMIT_MAKER",
+      "MARKET",
+      "STOP_LOSS_LIMIT",
+      "TAKE_PROFIT_LIMIT"
+    ],
+    "icebergAllowed": true,
     "filters": [{
       "filterType": "PRICE_FILTER",
       "minPrice": "0.00000100",
@@ -573,6 +579,7 @@ symbol | STRING | NO |
   "lastQty": "200.00000000",
   "bidPrice": "4.00000000",
   "askPrice": "4.00000200",
+  "askQty": "100.00000000",
   "openPrice": "99.00000000",
   "highPrice": "100.00000000",
   "lowPrice": "0.10000000",
@@ -598,6 +605,7 @@ OR
     "lastQty": "200.00000000",
     "bidPrice": "4.00000000",
     "askPrice": "4.00000200",
+    "askQty": "100.00000000",
     "openPrice": "99.00000000",
     "highPrice": "100.00000000",
     "lowPrice": "0.10000000",
@@ -957,7 +965,7 @@ timestamp | LONG | YES |
     "stopPrice": "0.0",
     "icebergQty": "0.0",
     "time": 1499827319559,
-    "isWorking": trueO
+    "isWorking": true
   }
 ]
 ```

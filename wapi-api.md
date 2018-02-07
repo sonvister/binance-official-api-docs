@@ -195,13 +195,11 @@ recvWindow | LONG | NO
 timestamp | LONG | YES
 **Response:**
 ```javascript
-[
 {
     "msg": "success",
     "success": true,
     "id":"7213fea8e94b4a5593d507237e5a555b"
 }
-]
 ```
 
 
@@ -323,14 +321,12 @@ timestamp | LONG | YES
 
 **Response:**
 ```javascript
-[
 {
     "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
     "success": true,
     "addressTag": "1231212",
     "asset": "BNB"
 }
-]
 ```
 
 ### Account Status (USER_DATA)
