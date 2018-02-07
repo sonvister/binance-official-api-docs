@@ -4,7 +4,7 @@
 * All endpoints return either a JSON object or array.
 * Data is returned in **ascending** order. Oldest first, newest last.
 * All time and timestamp related fields are in milliseconds.
-* HTTP `4XX` return codes are used for for malformed requests;
+* HTTP `4XX` return codes are used for malformed requests;
   the issue is on the sender's side.
 * HTTP `429` return code is used when breaking a request rate limit.
 * HTTP `418` return code is used when an IP has been auto-banned for continuing to send requests after receiving `429` codes.
@@ -14,7 +14,7 @@
 but not get a response within the timeout period.
 It is important to **NOT** treat this as a failure; the execution status is
 **UNKNOWN** and could have been a success.
-* Any endpoint can retun an ERROR; the error payload is as follows:
+* Any endpoint can return an ERROR; the error payload is as follows:
 ```javascript
 {
   "code": -1121,
@@ -33,15 +33,15 @@ It is important to **NOT** treat this as a failure; the execution status is
   `query string` parameter will be used.
 
 # LIMITS
-* The `/api/v1/exchangeInfo` `rateLimits` array contains objects related to the exchange's `REQUESTS` and `ORDER` rate limits.
-* A 429 will be returned when either rather limit is violated.
+* The `/api/v1/exchangeInfo` `rateLimits` array contains objects related to the exchange's `REQUESTS` and `ORDERS` rate limits.
+* A `429` will be returned when either rate limit is violated.
 * Each route has a `weight` which determines for the number of requests each endpoint counts for. Heavier endpoints and endpoints that do operations on multiple symbols will have a heavier `weight`.
-* When a 429 is recieved, it's your obligation as an API to back off and not spam the API.
+* When a `429` is received, it's your obligation as an API to back off and not spam the API.
 * **Repeatedly violating rate limits and/or failing to back off after receiving 429s will result in an automated IP ban (http status 418).**
 * IP bans are tracked and **scale in duration** for repeat offenders, **from 2 minutes to 3 days**.
 
 # Endpoint security type
-* Each endpoint has a security type that determines the how you will
+* Each endpoint has a security type that determines how you will
   interact with it.
 * API-keys are passed into the Rest API via the `X-MBX-APIKEY`
   header.
@@ -74,7 +74,7 @@ MARKET_DATA | Endpoint requires sending a valid API-Key.
 ## Timing security
 * A `SIGNED` endpoint also requires a parameter, `timestamp`, to be sent which
   should be the millisecond timestamp of when the request was created and sent.
-* An additional parameter, `recvWindow`, may be sent to specific the number of
+* An additional parameter, `recvWindow`, may be sent to specify the number of
   milliseconds after `timestamp` the request is valid for. If `recvWindow`
   is not sent, **it defaults to 5000**.
 * The logic is as follows:
@@ -176,7 +176,7 @@ There is no & between "GTC" and "quantity=1".
 # Public API Endpoints
 ## Terminology
 * `base asset` refers to the asset that is the `quantity` of a symbol.
-* `quoate asset` refers to the asset that is the `price` of a symbol.
+* `quote asset` refers to the asset that is the `price` of a symbol.
 
 
 ## ENUM definitions
@@ -297,7 +297,7 @@ NONE
 ```
 GET /api/v1/exchangeInfo
 ```
-Current exchange trading rules and symbol information
+Current exchange trading rules and symbol information.
 
 **Weight:**
 1
@@ -385,9 +385,9 @@ limit | INT | NO | Default 100; max 1000. Valid limits:[5, 10, 20, 50, 100, 500,
   "lastUpdateId": 1027024,
   "bids": [
     [
-      "4.00000000",     // PRICE
-      "431.00000000",   // QTY
-      []                // Ignore.
+      "4.00000000",     // Price
+      "431.00000000",   // Quantity
+      []                // Ignore
     ]
   ],
   "asks": [
@@ -445,7 +445,7 @@ Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
 limit | INT | NO | Default 500; max 500.
-fromId | LONG | NO | TradeId to fetch from. Default gets most recent trades.
+fromId | LONG | NO | Trade ID to fetch from. Default gets most recent trades.
 
 **Response:**
 ```javascript
@@ -482,17 +482,17 @@ endTime | LONG | NO | Timestamp in ms to get aggregate trades until INCLUSIVE.
 limit | INT | NO | Default 500; max 500.
 
 * If both startTime and endTime are sent, limit should not be sent AND the distance between startTime and endTime must be less than 24 hours.
-* If frondId, startTime, and endTime are not sent, the most recent aggregate trades will be returned.
+* If fromId, startTime, and endTime are not sent, the most recent aggregate trades will be returned.
 
 **Response:**
 ```javascript
 [
   {
-    "a": 26129,         // Aggregate tradeId
+    "a": 26129,         // Aggregate trade ID
     "p": "0.01633102",  // Price
     "q": "4.70443515",  // Quantity
-    "f": 27781,         // First tradeId
-    "l": 27781,         // Last tradeId
+    "f": 27781,         // First trade ID
+    "l": 27781,         // Last trade ID
     "T": 1498793709153, // Timestamp
     "m": true,          // Was the buyer the maker?
     "M": true           // Was the trade the best price match?
@@ -550,7 +550,7 @@ GET /api/v1/ticker/24hr
 24 hour price change statistics. **Careful** when accessing this with no symbol.
 
 **Weight:**
-1 for a single symbol; **number of symbols that are `TRADING` / 2** when the symbol parameter is omitted
+1 for a single symbol; **number of symbols that are `TRADING` / 2** when the symbol parameter is omitted.
 
 **Parameters:**
 
@@ -559,7 +559,7 @@ Name | Type | Mandatory | Description
 symbol | STRING | NO |
 
 * If the symbol is not sent, tickers for all symbols will be returned in an array.
-* When all symbols are returned, the number of requests counted against the rate limiter is equal to the number of symbols currently trading on the exchange.
+* When all symbols are returned, the number of requests counted against the rate limiter is equal to half the number of symbols currently trading on the exchange.
 
 **Response:**
 ```javascript
@@ -580,8 +580,8 @@ symbol | STRING | NO |
   "quoteVolume": "15.30000000",
   "openTime": 1499783499040,
   "closeTime": 1499869899040,
-  "fristId": 28385,   // First tradeId
-  "lastId": 28460,    // Last tradeId
+  "firstId": 28385,   // First trade ID
+  "lastId": 28460,    // Last trade ID
   "count": 76         // Trade count
 }
 ```
@@ -605,8 +605,8 @@ OR
     "quoteVolume": "15.30000000",
     "openTime": 1499783499040,
     "closeTime": 1499869899040,
-    "fristId": 28385,   // First tradeId
-    "lastId": 28460,    // Last tradeId
+    "firstId": 28385,   // First trade ID
+    "lastId": 28460,    // Last trade ID
     "count": 76         // Trade count
   }
 ]
@@ -718,7 +718,7 @@ type | ENUM | YES |
 timeInForce | ENUM | NO |
 quantity | DECIMAL | YES |
 price | DECIMAL | NO |
-newClientOrderId | STRING | NO | A unique id for the order. Automatically generated if not sent.
+newClientOrderId | STRING | NO | A unique ID for the order. Automatically generated if not sent.
 stopPrice | DECIMAL | NO | Used with `STOP_LOSS`, `STOP_LOSS_LIMIT`, `TAKE_PROFIT`, and `TAKE_PROFIT_LIMIT` orders.
 icebergQty | DECIMAL | NO | Used with `LIMIT`, `STOP_LOSS_LIMIT`, and `TAKE_PROFIT_LIMIT` to create an iceberg order.
 newOrderRespType | ENUM | NO | Set the response JSON. `ACK`, `RESULT`, or `FULL`; default: `RESULT`.
@@ -938,7 +938,7 @@ recvWindow | LONG | NO |
 timestamp | LONG | YES |
 
 * If the symbol is not sent, orders for all symbols will be returned in an array.
-* When all symbols are returned, the number of requests counted against the rate limiter is equal to the number of symbols currently trading on the exchange.
+* When all symbols are returned, the number of requests counted against the rate limiter is equal to half the number of symbols currently trading on the exchange.
 
 **Response:**
 ```javascript
@@ -1063,7 +1063,7 @@ Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
 limit | INT | NO | Default 500; max 500.
-fromId | LONG | NO | TradeId to fetch from. Default gets most recent trades.
+fromId | LONG | NO | Trade ID to fetch from. Default gets most recent trades.
 recvWindow | LONG | NO |
 timestamp | LONG | YES |
 

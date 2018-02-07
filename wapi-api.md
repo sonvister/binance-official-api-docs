@@ -4,7 +4,7 @@
 * All endpoints return either a JSON object or array.
 * Data is returned in **ascending** order. Oldest first, newest last.
 * All time and timestamp related fields are in milliseconds.
-* HTTP `4XX` return codes are used for for malformed requests;
+* HTTP `4XX` return codes are used for malformed requests;
   the issue is on the sender's side.
 * HTTP `429` return code is used when breaking a request rate limit.
 * HTTP `418` return code is used when an IP has been auto-banned for continuing to send requests after receiving `429` codes.
@@ -14,7 +14,7 @@
 but not get a response within the timeout period.
 It is important to **NOT** treat this as a failure; the execution status is
 **UNKNOWN** and could have been a success.
-* Any endpoint can retun an ERROR; the error payload is as follows:
+* Any endpoint can return an ERROR; the error payload is as follows:
 ```javascript
 {
   "success": false,
@@ -33,15 +33,15 @@ It is important to **NOT** treat this as a failure; the execution status is
   `query string` parameter will be used.
 
 # LIMITS
-* The `/wapi/v3` `rateLimits` array contains objects related to the exchange's `REQUESTS` and `ORDER` rate limits.
-* A 429 will be returned when either rather limit is violated.
+* The `/wapi/v3` `rateLimits` array contains objects related to the exchange's `REQUESTS` and `ORDERS` rate limits.
+* A `429` will be returned when either rather limit is violated.
 * Each route has a `weight` which determines for the number of requests each endpoint counts for. Heavier endpoints and endpoints that do operations on multiple symbols will have a heavier `weight`.
-* When a 429 is recieved, it's your obligation as an API to back off and not spam the API.
+* When a `429` is recieved, it's your obligation as an API to back off and not spam the API.
 * **Repeatedly violating rate limits and/or failing to back off after receiving 429s will result in an automated IP ban (http status 418).**
 * IP bans are tracked and **scale in duration** for repeat offenders, **from 2 minutes to 3 days**.
 
 # Endpoint security type
-* Each endpoint has a security type that determines the how you will
+* Each endpoint has a security type that determines how you will
   interact with it.
 * API-keys are passed into the Rest API via the `X-MBX-APIKEY`
   header.
@@ -74,7 +74,7 @@ MARKET_DATA | Endpoint requires sending a valid API-Key.
 ## Timing security
 * A `SIGNED` endpoint also requires a parameter, `timestamp`, to be sent which
   should be the millisecond timestamp of when the request was created and sent.
-* An additional parameter, `recvWindow`, may be sent to specific the number of
+* An additional parameter, `recvWindow`, may be sent to specify the number of
   milliseconds after `timestamp` the request is valid for. If `recvWindow`
   is not sent, **it defaults to 5000**.
 * The logic is as follows:
@@ -186,13 +186,13 @@ Submit a withdraw request.
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
-asset	|  STRING |	YES	
-address	 | STRING | YES	
-addressTag | STRING | NO | Secondary address identifier for coins like XRP,XMR etc.
-amount | DECIMAL | YES	
-name | STRING | NO | Description of the address
-recvWindow | LONG | NO	
-timestamp | LONG | YES	
+asset	|  STRING |	YES
+address	 | STRING | YES
+addressTag | STRING | NO | Secondary address identifier for coins like XRP, XMR, etc.
+amount | DECIMAL | YES
+name | STRING | NO | Description of the address.
+recvWindow | LONG | NO
+timestamp | LONG | YES
 **Response:**
 ```javascript
 [
@@ -218,12 +218,12 @@ Fetch deposit history.
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
-asset | STRING | NO	
-status | INT | NO | 0(0:pending,1:success)
-startTime | LONG | NO	
-endTime | LONG | NO	
-recvWindow | LONG | NO	
-timestamp | LONG | YES	
+asset | STRING | NO
+status | INT | NO | (0:pending, 1:success)
+startTime | LONG | NO
+endTime | LONG | NO
+recvWindow | LONG | NO
+timestamp | LONG | YES
 
 
 **Response:**
@@ -265,12 +265,12 @@ Fetch withdraw history.
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
-asset | STRING | NO	
-status | INT | NO | 0(0:Email Sent,1:Cancelled 2:Awaiting Approval 3:Rejected 4:Processing 5:Failure 6Completed)
-startTime | LONG | NO	
-endTime | LONG | NO	
-recvWindow | LONG | NO	
-timestamp | LONG | YES	
+asset | STRING | NO
+status | INT | NO | (0:Email Sent, 1:Cancelled, 2:Awaiting Approval, 3:Rejected 4:Processing, 5:Failure, 6:Completed)
+startTime | LONG | NO
+endTime | LONG | NO
+recvWindow | LONG | NO
+timestamp | LONG | YES
 
 
 **Response:**
@@ -283,7 +283,7 @@ timestamp | LONG | YES
             "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
             "asset": "ETH",
             "txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1",
-            "applyTime": 1508198532000 
+            "applyTime": 1508198532000
             "status": 4
         },
         {
@@ -317,9 +317,9 @@ Fetch deposit address.
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
-asset | STRING | YES	
-recvWindow | LONG | NO	
-timestamp | LONG | YES	
+asset | STRING | YES
+recvWindow | LONG | NO
+timestamp | LONG | YES
 
 **Response:**
 ```javascript
@@ -346,8 +346,8 @@ Fetch account status detail.
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
-recvWindow | LONG | NO	
-timestamp | LONG | YES	
+recvWindow | LONG | NO
+timestamp | LONG | YES
 
 **Response:**
 ```javascript

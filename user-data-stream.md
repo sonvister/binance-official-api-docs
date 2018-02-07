@@ -6,7 +6,7 @@
 * Doing a `DELETE` on a `listenKey` will close the stream.
 * The base websocket endpoint is: **wss://stream.binance.com:9443**
 * User Data Streams are accessed at **/ws/\<listenKey\>**
-* A single connection to **stream.binance.com** is only valid for 24 hours; expect to be disconnected at the 24 hour mark
+* A single connection to **stream.binance.com** is only valid for 24 hours; expect to be disconnected at the 24 hour mark.
 
 # API Endpoints
 ## Create a listenKey
@@ -136,7 +136,7 @@ Orders are updated with the `executionReport` event. Check the API documentation
   "C": "null",                   // Original client order ID; This is the ID of the order being canceled
   "x": "NEW",                    // Current execution type
   "X": "NEW",                    // Current order status
-  "r": "NONE",                   // Order reject reason; will be an error code.
+  "r": "NONE",                   // Order reject reason; will be an error code
   "i": 4293153,                  // Order ID
   "l": "0.00000000",             // Last executed quantity
   "z": "0.00000000",             // Cumulative filled quantity

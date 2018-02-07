@@ -6,7 +6,7 @@
 * Combined streams are accessed at **/stream?streams=\<streamName1\>/\<streamName2\>/\<streamName3\>**
 * Combined stream events are wrapped as follows: **{"stream":"\<streamName\>","data":\<rawPayload\>}**
 * All symbols for streams are **lowercase**
-* A single connection to **stream.binance.com** is only valid for 24 hours; expect to be disconnected at the 24 hour mark
+* A single connection to **stream.binance.com** is only valid for 24 hours; expect to be disconnected at the 24 hour mark.
 
 # Detailed Stream information
 ## Aggregate Trade Streams
@@ -27,7 +27,7 @@ The Aggregate Trade Streams push trade information that is aggregated for a sing
   "l": 105,         // Last trade ID
   "T": 123456785,   // Trade time
   "m": true,        // Is the buyer the market maker?
-  "M": true         // Ignore.
+  "M": true         // Ignore
 }
 ```
 
@@ -45,11 +45,11 @@ The Trade Streams push raw trade information; each trade has a unique buyer and 
   "t": 12345,       // Trade ID
   "p": "0.001",     // Price
   "q": "100",       // Quantity
-  "b": 88,          // Buyer order Id
-  "a": 50,          // Seller order Id
+  "b": 88,          // Buyer order ID
+  "a": 50,          // Seller order ID
   "T": 123456785,   // Trade time
   "m": true,        // Is the buyer the market maker?
-  "M": true         // Ignore.
+  "M": true         // Ignore
 }
 ```
 
@@ -107,7 +107,7 @@ m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
 ```
 
 ## Individual Symbol Ticker Streams
-24hr Ticker statistics for a single symbol pushed every second
+24hr Ticker statistics for a single symbol pushed every second.
 
 **Stream Name:** \<symbol\>@ticker
 
@@ -124,7 +124,7 @@ m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
   "c": "0.0025",      // Current day's close price
   "Q": "10",          // Close trade's quantity
   "b": "0.0024",      // Best bid price
-  "B": "10",          // Bid bid quantity
+  "B": "10",          // Best bid quantity
   "a": "0.0026",      // Best ask price
   "A": "100",         // Best ask quantity
   "o": "0.0010",      // Open price
@@ -135,13 +135,13 @@ m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
   "O": 0,             // Statistics open time
   "C": 86400000,      // Statistics close time
   "F": 0,             // First trade ID
-  "L": 18150,         // Last trade Id
+  "L": 18150,         // Last trade ID
   "n": 18151          // Total number of trades
 }
 ```
 
 ## All Market Tickers Stream
-24hr Ticker statistics for all symbols in an array pushed every second
+24hr Ticker statistics for all symbols in an array pushed every second.
 
 **Stream Name:** !ticker@arr
 
@@ -165,16 +165,16 @@ Top **\<levels\>** bids and asks, pushed every second. Valid **\<levels\>** are 
   "lastUpdateId": 160,  // Last update ID
   "bids": [             // Bids to be updated
     [
-      "0.0024",         // price level to be updated
-      "10",             // quantity
-      []                // ignore
+      "0.0024",         // Price level to be updated
+      "10",             // Quantity
+      []                // Ignore
     ]
   ],
   "asks": [             // Asks to be updated
     [
-      "0.0026",         // price level to be updated
-      "100",            // quantity
-      []                // ignore
+      "0.0026",         // Price level to be updated
+      "100",            // Quantity
+      []                // Ignore
     ]
   ]
 }
@@ -195,16 +195,16 @@ Order book price and quantity depth updates used to locally manage an order book
   "u": 160,           // Final update ID in event
   "b": [              // Bids to be updated
     [
-      "0.0024",       // price level to be updated
-      "10",
-      []              // ignore
+      "0.0024",       // Price level to be updated
+      "10",           // Quantity
+      []              // Ignore
     ]
   ],
   "a": [              // Asks to be updated
     [
-      "0.0026",       // price level to be updated
-      "100",          // quantity
-      []              // ignore
+      "0.0026",       // Price level to be updated
+      "100",          // Quantity
+      []              // Ignore
     ]
   ]
 }
