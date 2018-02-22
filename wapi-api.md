@@ -355,3 +355,17 @@ timestamp | LONG | YES
     ]
 }
 ```
+
+### System Status (System)
+```
+GET /wapi/v3/systemStatus.html
+```
+
+Fetch system status.
+**Response:**
+```javascript
+{
+    "status": 0,              // 0: normal，1：system maintenance
+    "msg": "normal"           // normal or system maintenance
+}
+```
