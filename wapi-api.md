@@ -1,4 +1,4 @@
-# Public WAPI for Binance (2017-12-01)
+# Public WAPI for Binance (2018-07-18)
 # General API Information
 * The base endpoint is: **https://api.binance.com**
 * All endpoints return either a JSON object or array.
@@ -67,7 +67,7 @@ MARKET_DATA | Endpoint requires sending a valid API-Key.
   sent in the  `query string` or `request body`.
 * Endpoints use `HMAC SHA256` signatures. The `HMAC SHA256 signature` is a keyed `HMAC SHA256` operation.
   Use your `secretKey` as the key and `totalParams` as the value for the HMAC operation.
-* The `signature` is **not case sensitive**.
+* The `signature` is **not case sensitive**, but it should come last in the list of params!
 * `totalParams` is defined as the `query string` concatenated with the
   `request body`.
 
@@ -135,43 +135,7 @@ signature  | 157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320
     [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://www.binance.com/wapi/v3/withdraw.html?asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b&amount=1&recvWindow=5000&name=addressName&timestamp=1510903211000&signature=157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320'
     ```
 
-### Example 2: As a request body
-* **requestBody:** asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b&amount=1&recvWindow=5000&name=test&timestamp=1510903211000
-* **HMAC SHA256 signature:**
-
-    ```
-    [linux]$ echo -n "asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b&amount=1&recvWindow=5000&timestamp=1510903211000" | openssl dgst -sha256 -hmac "NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j"
-    (stdin)= 157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320
-    ```
-
-
-* **curl command:**
-
-    ```
-    (HMAC SHA256)
-    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://www.binance.com/wapi/v3/withdraw.html' -d 'asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b&amount=1&recvWindow=5000&name=addressName&timestamp=1510903211000&signature=157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320'
-    ```
-
-### Example 3: Mixed query string and request body
-* **queryString:** asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b
-* **requestBody:** amount=1&recvWindow=5000&name=test&timestamp=1510903211000
-* **HMAC SHA256 signature:**
-
-    ```
-    [linux]$ echo -n "asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b&amount=1&recvWindow=5000&timestamp=1510903211000" | openssl dgst -sha256 -hmac "NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j"
-    (stdin)= 157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320
-    ```
-
-
-* **curl command:**
-
-    ```
-    (HMAC SHA256)
-    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://www.binance.com/wapi/v3/withdraw.html?asset=ETH&address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b' -d 'amount=1&recvWindow=5000&name=addressName&timestamp=1510903211000&signature=157fb937ec848b5f802daa4d9f62bea08becbf4f311203bda2bd34cd9853e320'
-    ```
-
-Note that the signature is different in example 3.
-There is no & between "address=0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b" and "amount=1".
+Note that for wapi, parameters must be sent in query strings.
 
 ### Withdraw
 ```
@@ -276,16 +240,16 @@ timestamp | LONG | YES
 {
     "withdrawList": [
         {
-            "id":"7213fea8e94b4a5593d507237e5a555b"
+            "id":"7213fea8e94b4a5593d507237e5a555b",
             "amount": 1,
             "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
             "asset": "ETH",
             "txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1",
-            "applyTime": 1508198532000
+            "applyTime": 1508198532000,
             "status": 4
         },
         {
-            "id":"7213fea8e94b4a5534ggsd237e5a555b"
+            "id":"7213fea8e94b4a5534ggsd237e5a555b",
             "amount": 1000,
             "address": "463tWEBn5XZJSxLU34r6g7h8jtxuNcDbjLSjkn3XAXHCbLrTTErJrBWYgHJQyrCwkNgYvyV3z8zctJLPCZy24jvb3NiTcTJ",
             "addressTag": "342341222",
@@ -316,6 +280,7 @@ Fetch deposit address.
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 asset | STRING | YES
+status | Boolean |NO
 recvWindow | LONG | NO
 timestamp | LONG | YES
 
@@ -367,5 +332,163 @@ Fetch system status.
 {
     "status": 0,              // 0: normal，1：system maintenance
     "msg": "normal"           // normal or system maintenance
+}
+```
+
+### DustLog (USER_DATA)
+```
+GET /wapi/v3/userAssetDribbletLog.html   (HMAC SHA256)
+```
+Fetch small amounts of assets exchanged BNB records.
+
+
+**Weight:**
+1
+
+
+**Parameters:**
+
+Name | Type | Mandatory | Description
+------------ | ------------ | ------------ | ------------
+recvWindow | LONG | NO  
+timestamp | LONG | YES  
+
+**Response:**
+```javascript
+{
+    "success": true, 
+    "results": {
+        "total": 2,   //Total counts of exchange
+        "rows": [
+            {
+                "transfered_total": "0.00132256",//Total transfered BNB amount for this exchange.
+                "service_charge_total": "0.00002699",   //Total service charge amount for this exchange.
+                "tran_id": 4359321,
+                "logs": [           //Details of  this exchange.
+                    {
+                        "tranId": 4359321,
+                        "serviceChargeAmount": "0.000009",
+                        "uid": "10000015",
+                        "amount": "0.0009",
+                        "operateTime": "2018-05-03 17:07:04",
+                        "transferedAmount": "0.000441",
+                        "fromAsset": "USDT"
+                    },
+                    {
+                        "tranId": 4359321,
+                        "serviceChargeAmount": "0.00001799",
+                        "uid": "10000015",
+                        "amount": "0.0009",
+                        "operateTime": "2018-05-03 17:07:04",
+                        "transferedAmount": "0.00088156",
+                        "fromAsset": "ETH"
+                    }
+                ],
+                "operate_time": "2018-05-03 17:07:04" //The time of this exchange.
+            },
+            {
+                "transfered_total": "0.00058795",
+                "service_charge_total": "0.000012",
+                "tran_id": 4357015,
+                "logs": [       // Details of  this exchange.
+                    {
+                        "tranId": 4357015,
+                        "serviceChargeAmount": "0.00001",
+                        "uid": "10000015",
+                        "amount": "0.001",
+                        "operateTime": "2018-05-02 13:52:24",
+                        "transferedAmount": "0.00049",
+                        "fromAsset": "USDT"
+                    },
+                    {
+                        "tranId": 4357015,
+                        "serviceChargeAmount": "0.000002",
+                        "uid": "10000015",
+                        "amount": "0.0001",
+                        "operateTime": "2018-05-02 13:51:11",
+                        "transferedAmount": "0.00009795",
+                        "fromAsset": "ETH"
+                    }
+                ],
+                "operate_time": "2018-05-02 13:51:11"
+            }
+        ]
+    }
+}
+```
+
+### Trade Fee (USER_DATA)
+```
+GET  /wapi/v3/tradeFee.html (HMAC SHA256)
+```
+Fetch trade fee.
+
+
+**Weight:**
+1
+
+
+**Parameters:**
+
+Name | Type | Mandatory | Description
+------------ | ------------ | ------------ | ------------
+recvWindow | LONG | NO  
+timestamp | LONG | YES  
+symbol | STRING | NO
+
+**Response:**
+```javascript
+{
+	"tradeFee": [{
+		"symbol": "ADABNB",
+		"maker": 0.9000,
+		"taker": 1.0000
+	}, {
+		"symbol": "BNBBTC",
+		"maker": 0.3000,
+		"taker": 0.3000
+	}],
+	"success": true
+}
+```
+
+
+### Asset Detail (USER_DATA)
+```
+GET  /wapi/v3/assetDetail.html (HMAC SHA256)
+```
+Fetch asset detail.
+
+
+**Weight:**
+1
+
+
+**Parameters:**
+
+Name | Type | Mandatory | Description
+------------ | ------------ | ------------ | ------------
+recvWindow | LONG | NO  
+timestamp | LONG | YES  
+
+**Response:**
+```javascript
+{
+    "success": true,
+    "assetDetail": {
+        "CTR": {
+            "minWithdrawAmount": "70.00000000", //min withdraw amount
+            "depositStatus": false,//deposit status
+            "withdrawFee": 35, // withdraw fee
+            "withdrawStatus": true, //withdraw status
+            "depositTip": "Delisted, Deposit Suspended" //reason
+        },
+        "SKY": {
+            "minWithdrawAmount": "0.02000000",
+            "depositStatus": true,
+            "withdrawFee": 0.01,
+            "withdrawStatus": true
+        }	
+    }
 }
 ```
