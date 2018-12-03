@@ -1,12 +1,13 @@
-# User Data Streams for Binance (2017-12-01)
+# User Data Streams for Binance (2018-11-13)
 # General WSS information
 * The base API endpoint is: **https://api.binance.com**
 * A User Data Stream `listenKey` is valid for 60 minutes after creation.
 * Doing a `PUT` on a `listenKey` will extend its validity for 60 minutes.
 * Doing a `DELETE` on a `listenKey` will close the stream.
 * The base websocket endpoint is: **wss://stream.binance.com:9443**
-* User Data Streams are accessed at **/ws/\<listenKey\>**
+* User Data Streams are accessed at: **/ws/\<listenKey\>**
 * A single connection to **stream.binance.com** is only valid for 24 hours; expect to be disconnected at the 24 hour mark.
+* User data stream payloads are **not guaranteed** to be in order during heavy periods; **make sure to order your updates using E**.
 
 # API Endpoints
 ## Create a listenKey
@@ -117,6 +118,7 @@ Account state is updated with the `outboundAccountInfo` event.
 
 ## Order Update
 Orders are updated with the `executionReport` event. Check the API documentation and below for relevant enum definitions.
+Average price can be found by doing `Z` divided by `z`.
 
 **Payload:**
 ```javascript
@@ -148,7 +150,10 @@ Orders are updated with the `executionReport` event. Check the API documentation
   "I": 8641984,                  // Ignore
   "w": true,                     // Is the order working? Stops will have
   "m": false,                    // Is this trade the maker side?
-  "M": false                     // Ignore
+  "M": false,                    // Ignore
+  "O": 1499405658657,            // Order creation time
+  "Z": "0.00000000",             // Cumulative quote asset transacted quantity
+  "Y": "0.00000000"              // Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 }
 ```
 
