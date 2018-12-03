@@ -1,4 +1,4 @@
-# Error codes for Binance (2017-12-01)
+# Error codes for Binance (2018-11-13)
 Errors consist of two parts: an error code and a message. Codes are universal,
  but messages can vary. Here is the error JSON payload:
 ```javascript
@@ -20,8 +20,8 @@ Errors consist of two parts: an error code and a message. Codes are universal,
  * You are not authorized to execute this request.
 
 #### -1003 TOO_MANY_REQUESTS
- * Too many requests.
  * Too many requests queued.
+ * Too many requests; please use the websocket for live updates.
  * Too many requests; current limit is %s requests per minute. Please use the websocket for live updates to avoid polling the API.
  * Way too many requests; IP banned until %s. Please use the websocket for live updates to avoid bans.
 
@@ -30,9 +30,6 @@ Errors consist of two parts: an error code and a message. Codes are universal,
 
 #### -1007 TIMEOUT
  * Timeout waiting for response from backend server. Send status unknown; execution status unknown.
-
-#### -1013 INVALID_MESSAGE
- * INVALID_MESSAGE
 
 #### -1014 UNKNOWN_ORDER_COMPOSITION
  * Unsupported order combination.
@@ -53,6 +50,7 @@ Errors consist of two parts: an error code and a message. Codes are universal,
 
 #### -1022 INVALID_SIGNATURE
  * Signature for this request is not valid.
+
 
 ## 11xx - Request issues
 #### -1100 ILLEGAL_CHARS
@@ -78,11 +76,14 @@ Errors consist of two parts: an error code and a message. Codes are universal,
 
 #### -1105 PARAM_EMPTY
  * A parameter was empty.
- * Parameter '%s' was was empty.
+ * Parameter '%s' was empty.
 
 #### -1106 PARAM_NOT_REQUIRED
  * A parameter was sent when not required.
  * Parameter '%s' sent when not required.
+
+#### -1111 BAD_PRECISION
+ * Precision is over the maximum defined for this asset.
 
 #### -1112 NO_DEPTH
  * No orders on book for symbol.
@@ -125,15 +126,11 @@ Errors consist of two parts: an error code and a message. Codes are universal,
  * Invalid data sent for a parameter.
  * Data sent for paramter '%s' is not valid.
 
-## 20xx - Processing Issues
-#### -2008 BAD_API_ID
- * Invalid Api-Key ID
+#### -2010 NEW_ORDER_REJECTED
+ * NEW_ORDER_REJECTED
 
-#### -2009 DUPLICATE_API_KEY_DESC
- * API-key desc already exists.
-
-#### -2012 CANCEL_ALL_FAIL
- * Batch cancel failure.
+#### -2011 CANCEL_REJECTED
+ * CANCEL_REJECTED
 
 #### -2013 NO_SUCH_ORDER
  * Order does not exist.
@@ -143,6 +140,9 @@ Errors consist of two parts: an error code and a message. Codes are universal,
 
 #### -2015 REJECTED_MBX_KEY
  * Invalid API-key, IP, or permissions for action.
+
+#### -2016 NO_TRADING_WINDOW
+ * No trading window could be found for the symbol. Try ticker/24hrs instead.
 
 
 ## Messages for -1010 ERROR_MSG_RECEIVED, -2010 NEW_ORDER_REJECTED, and -2011 CANCEL_REJECTED
@@ -174,10 +174,14 @@ Error message | Description
 Error message | Description
 ------------ | ------------
 "Filter failure: PRICE_FILTER" | `price` is too high, too low, and/or not following the tick size rule for the symbol.
+"Filter failure: PERCENT_PRICE" | `price` is X% too high or X% too low from the average weighted price over the last Y minutes.
 "Filter failure: LOT_SIZE" | `quantity` is too high, too low, and/or not following the step size rule for the symbol.
 "Filter failure: MIN_NOTIONAL" | `price` * `quantity` is too low to be a valid order for the symbol.
+"Filter failure: ICEBERG_PARTS" | `ICEBERG` order would break into too many parts; icebergQty is too small.
+"Filter failure: MARKET_LOT_SIZE" | `MARKET` order's `quantity` is too high, too low, and/or not following the step size rule for the symbol.
 "Filter failure: MAX_NUM_ORDERS" | Account has too many open orders on the symbol.
 "Filter failure: MAX_ALGO_ORDERS" | Account has too many open stop loss and/or take profit orders on the symbol.
+"Filter failure: MAX_NUM_ICEBERG_ORDERS" | Account has too many open iceberg orders on the symbol.
 "Filter failure: EXCHANGE_MAX_NUM_ORDERS" | Account has too many open orders on the exchange.
 "Filter failure: EXCHANGE_MAX_ALGO_ORDERS" | Account has too many open stop loss and/or take profit orders on the exchange.
 
