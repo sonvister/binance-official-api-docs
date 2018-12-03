@@ -1,4 +1,4 @@
-# Public Rest API for Binance (2018-01-14)
+# Public Rest API for Binance (2018-11-13)
 # General API Information
 * The base endpoint is: **https://api.binance.com**
 * All endpoints return either a JSON object or array.
@@ -10,10 +10,8 @@
 * HTTP `418` return code is used when an IP has been auto-banned for continuing to send requests after receiving `429` codes.
 * HTTP `5XX` return codes are used for internal errors; the issue is on
   Binance's side.
-* HTTP `504` return code is used when the API successfully sent the message
-but not get a response within the timeout period.
-It is important to **NOT** treat this as a failure; the execution status is
-**UNKNOWN** and could have been a success.
+  It is important to **NOT** treat this as a failure operation; the execution status is
+  **UNKNOWN** and could have been a success.
 * Any endpoint can return an ERROR; the error payload is as follows:
 ```javascript
 {
@@ -33,7 +31,7 @@ It is important to **NOT** treat this as a failure; the execution status is
   `query string` parameter will be used.
 
 # LIMITS
-* The `/api/v1/exchangeInfo` `rateLimits` array contains objects related to the exchange's `REQUESTS` and `ORDERS` rate limits.
+* The `/api/v1/exchangeInfo` `rateLimits` array contains objects related to the exchange's `RAW_REQUEST`, `REQUEST_WEIGHT`, and `ORDER` rate limits.
 * A `429` will be returned when either rate limit is violated.
 * Each route has a `weight` which determines for the number of requests each endpoint counts for. Heavier endpoints and endpoints that do operations on multiple symbols will have a heavier `weight`.
 * When a `429` is received, it's your obligation as an API to back off and not spam the API.
@@ -93,7 +91,7 @@ processed within a certain number of milliseconds or be rejected by the
 server.
 
 
-**Tt recommended to use a small recvWindow of 5000 or less!**
+**It recommended to use a small recvWindow of 5000 or less!**
 
 
 ## SIGNED Endpoint Examples for POST /api/v1/order
@@ -149,7 +147,7 @@ timestamp | 1499827319559
 
     ```
     (HMAC SHA256)
-    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://api.binance.com/api/v3/order' -d 'symbol=LTCBTC&side=BUY&type=LIMIT&timeInForce=GTC&quantity=1&price=0.1&recvWindow=6000000&timestamp=1499827319559&signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71'
+    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://api.binance.com/api/v3/order' -d 'symbol=LTCBTC&side=BUY&type=LIMIT&timeInForce=GTC&quantity=1&price=0.1&recvWindow=5000&timestamp=1499827319559&signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71'
     ```
 
 ### Example 3: Mixed query string and request body
@@ -167,7 +165,7 @@ timestamp | 1499827319559
 
     ```
     (HMAC SHA256)
-    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://api.binance.com/api/v3/order?symbol=LTCBTC&side=BUY&type=LIMIT&timeInForce=GTC' -d 'quantity=1&price=0.1&recvWindow=6000000&timestamp=1499827319559&signature=0fd168b8ddb4876a0358a8d14d0c9f3da0e9b20c5d52b2a00fcf7d1c602f9a77'
+    [linux]$ curl -H "X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A" -X POST 'https://api.binance.com/api/v3/order?symbol=LTCBTC&side=BUY&type=LIMIT&timeInForce=GTC' -d 'quantity=1&price=0.1&recvWindow=5000&timestamp=1499827319559&signature=0fd168b8ddb4876a0358a8d14d0c9f3da0e9b20c5d52b2a00fcf7d1c602f9a77'
     ```
 
 Note that the signature is different in example 3.
@@ -247,8 +245,9 @@ m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
 
 **Rate limiters (rateLimitType)**
 
-* REQUESTS
+* REQUESTS_WEIGHT
 * ORDERS
+* RAW_REQUESTS
 
 **Rate limit intervals**
 
@@ -311,19 +310,28 @@ NONE
   "timezone": "UTC",
   "serverTime": 1508631584636,
   "rateLimits": [{
-      "rateLimitType": "REQUESTS",
+      "rateLimitType": "REQUESTS_WEIGHT",
       "interval": "MINUTE",
+      "intervalNum": 1,
       "limit": 1200
     },
     {
       "rateLimitType": "ORDERS",
       "interval": "SECOND",
+      "intervalNum": 1,
       "limit": 10
     },
     {
       "rateLimitType": "ORDERS",
       "interval": "DAY",
+      "intervalNum": 1,
       "limit": 100000
+    },
+    {
+      "rateLimitType": "RAW_REQUESTS",
+      "interval": "MINUTE",
+      "intervalNum": 5,
+      "limit": 5000
     }
   ],
   "exchangeFilters": [],
@@ -383,6 +391,7 @@ Name | Type | Mandatory | Description
 symbol | STRING | YES |
 limit | INT | NO | Default 100; max 1000. Valid limits:[5, 10, 20, 50, 100, 500, 1000]
 
+**Caution:** setting limit=0 can return a lot of data.
 
 **Response:**
 ```javascript
@@ -419,7 +428,7 @@ Get recent trades (up to last 500).
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
-limit | INT | NO | Default 500; max 500.
+limit | INT | NO | Default 500; max 1000.
 
 **Response:**
 ```javascript
@@ -449,7 +458,7 @@ Get older trades.
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
-limit | INT | NO | Default 500; max 500.
+limit | INT | NO | Default 500; max 1000.
 fromId | LONG | NO | Trade ID to fetch from. Default gets most recent trades.
 
 **Response:**
@@ -484,9 +493,9 @@ symbol | STRING | YES |
 fromId | LONG | NO | ID to get aggregate trades from INCLUSIVE.
 startTime | LONG | NO | Timestamp in ms to get aggregate trades from INCLUSIVE.
 endTime | LONG | NO | Timestamp in ms to get aggregate trades until INCLUSIVE.
-limit | INT | NO | Default 500; max 500.
+limit | INT | NO | Default 500; max 1000.
 
-* If both startTime and endTime are sent, limit should not be sent AND the distance between startTime and endTime must be less than 24 hours.
+* If both startTime and endTime are sent, time between startTime and endTime must be less than 1 hour.
 * If fromId, startTime, and endTime are not sent, the most recent aggregate trades will be returned.
 
 **Response:**
@@ -521,9 +530,9 @@ Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
 interval | ENUM | YES |
-limit | INT | NO | Default 500; max 500.
 startTime | LONG | NO |
 endTime | LONG | NO |
+limit | INT | NO | Default 500; max 1000.
 
 * If startTime and endTime are not sent, the most recent klines are returned.
 
@@ -548,6 +557,30 @@ endTime | LONG | NO |
 ```
 
 
+### Current average price
+Current average price for a symbol.
+```
+GET /api/v3/avgPrice
+```
+**Weight:**
+1
+
+**Parameters:**
+
+Name | Type | Mandatory | Description
+------------ | ------------ | ------------ | ------------
+symbol | STRING | YES |
+
+
+**Response:**
+```javascript
+{
+  "mins": 5,
+  "price": "9.35751834"
+}
+```
+
+
 ### 24hr ticker price change statistics
 ```
 GET /api/v1/ticker/24hr
@@ -555,7 +588,7 @@ GET /api/v1/ticker/24hr
 24 hour price change statistics. **Careful** when accessing this with no symbol.
 
 **Weight:**
-1 for a single symbol; **number of symbols that are `TRADING` / 2** when the symbol parameter is omitted.
+1 for a single symbol; **40** when the symbol parameter is omitted
 
 **Parameters:**
 
@@ -564,7 +597,6 @@ Name | Type | Mandatory | Description
 symbol | STRING | NO |
 
 * If the symbol is not sent, tickers for all symbols will be returned in an array.
-* When all symbols are returned, the number of requests counted against the rate limiter is equal to half the number of symbols currently trading on the exchange.
 
 **Response:**
 ```javascript
@@ -627,7 +659,7 @@ GET /api/v3/ticker/price
 Latest price for a symbol or symbols.
 
 **Weight:**
-1
+1 for a single symbol; **2** when the symbol parameter is omitted
 
 **Parameters:**
 
@@ -665,7 +697,7 @@ GET /api/v3/ticker/bookTicker
 Best price/qty on the order book for a symbol or symbols.
 
 **Weight:**
-1
+1 for a single symbol; **2** when the symbol parameter is omitted
 
 **Parameters:**
 
@@ -728,7 +760,7 @@ price | DECIMAL | NO |
 newClientOrderId | STRING | NO | A unique ID for the order. Automatically generated if not sent.
 stopPrice | DECIMAL | NO | Used with `STOP_LOSS`, `STOP_LOSS_LIMIT`, `TAKE_PROFIT`, and `TAKE_PROFIT_LIMIT` orders.
 icebergQty | DECIMAL | NO | Used with `LIMIT`, `STOP_LOSS_LIMIT`, and `TAKE_PROFIT_LIMIT` to create an iceberg order.
-newOrderRespType | ENUM | NO | Set the response JSON. `ACK`, `RESULT`, or `FULL`; default: `RESULT`.
+newOrderRespType | ENUM | NO | Set the response JSON. `ACK`, `RESULT`, or `FULL`; `MARKET` and `LIMIT` order types default to `FULL`, all other orders default to `ACK`.
 recvWindow | LONG | NO |
 timestamp | LONG | YES |
 
@@ -774,9 +806,10 @@ Trigger order price rules against market price for both MARKET and LIMIT version
   "orderId": 28,
   "clientOrderId": "6gCrw2kRUAF9CvJDGP16IP",
   "transactTime": 1507725176595,
-  "price": "0.00000000",
+  "price": "1.00000000",
   "origQty": "10.00000000",
   "executedQty": "10.00000000",
+  "cummulativeQuoteQty": "10.00000000",
   "status": "FILLED",
   "timeInForce": "GTC",
   "type": "MARKET",
@@ -791,9 +824,10 @@ Trigger order price rules against market price for both MARKET and LIMIT version
   "orderId": 28,
   "clientOrderId": "6gCrw2kRUAF9CvJDGP16IP",
   "transactTime": 1507725176595,
-  "price": "0.00000000",
+  "price": "1.00000000",
   "origQty": "10.00000000",
   "executedQty": "10.00000000",
+  "cummulativeQuoteQty": "10.00000000",
   "status": "FILLED",
   "timeInForce": "GTC",
   "type": "MARKET",
@@ -845,7 +879,7 @@ Creates and validates a new order but does not send it into the matching engine.
 
 **Parameters:**
 
-Same as `/api/v3/order`
+Same as `POST /api/v3/order`
 
 
 **Response:**
@@ -872,8 +906,10 @@ origClientOrderId | STRING | NO |
 recvWindow | LONG | NO |
 timestamp | LONG | YES |
 
+Notes:
+* Either `orderId` or `origClientOrderId` must be sent.
+* For some historical orders `cummulativeQuoteQty` will be < 0, meaning the data is not available at this time.
 
-Either `orderId` or `origClientOrderId` must be sent.
 
 **Response:**
 ```javascript
@@ -884,6 +920,7 @@ Either `orderId` or `origClientOrderId` must be sent.
   "price": "0.1",
   "origQty": "1.0",
   "executedQty": "0.0",
+  "cummulativeQuoteQty": "0.0",
   "status": "NEW",
   "timeInForce": "GTC",
   "type": "LIMIT",
@@ -891,6 +928,7 @@ Either `orderId` or `origClientOrderId` must be sent.
   "stopPrice": "0.0",
   "icebergQty": "0.0",
   "time": 1499827319559,
+  "updateTime": 1499827319559,
   "isWorking": true
 }
 ```
@@ -921,9 +959,18 @@ Either `orderId` or `origClientOrderId` must be sent.
 ```javascript
 {
   "symbol": "LTCBTC",
+  "orderId": 28,
   "origClientOrderId": "myOrder1",
-  "orderId": 1,
-  "clientOrderId": "cancelMyOrder1"
+  "clientOrderId": "cancelMyOrder1",
+  "transactTime": 1507725176595,
+  "price": "1.00000000",
+  "origQty": "10.00000000",
+  "executedQty": "8.00000000",
+  "cummulativeQuoteQty": "8.00000000",
+  "status": "CANCELED",
+  "timeInForce": "GTC",
+  "type": "LIMIT",
+  "side": "SELL"
 }
 ```
 
@@ -934,7 +981,7 @@ GET /api/v3/openOrders  (HMAC SHA256)
 Get all open orders on a symbol. **Careful** when accessing this with no symbol.
 
 **Weight:**
-1 for a single symbol; **number of symbols that are `TRADING` / 2** when the symbol parameter is omitted
+1 for a single symbol; **40** when the symbol parameter is omitted
 
 **Parameters:**
 
@@ -945,7 +992,6 @@ recvWindow | LONG | NO |
 timestamp | LONG | YES |
 
 * If the symbol is not sent, orders for all symbols will be returned in an array.
-* When all symbols are returned, the number of requests counted against the rate limiter is equal to half the number of symbols currently trading on the exchange.
 
 **Response:**
 ```javascript
@@ -957,6 +1003,7 @@ timestamp | LONG | YES |
     "price": "0.1",
     "origQty": "1.0",
     "executedQty": "0.0",
+    "cummulativeQuoteQty": "0.0",
     "status": "NEW",
     "timeInForce": "GTC",
     "type": "LIMIT",
@@ -964,6 +1011,7 @@ timestamp | LONG | YES |
     "stopPrice": "0.0",
     "icebergQty": "0.0",
     "time": 1499827319559,
+    "updateTime": 1499827319559,
     "isWorking": true
   }
 ]
@@ -976,7 +1024,7 @@ GET /api/v3/allOrders (HMAC SHA256)
 Get all account orders; active, canceled, or filled.
 
 **Weight:**
-5
+5 with symbol
 
 **Parameters:**
 
@@ -984,12 +1032,15 @@ Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
 orderId | LONG | NO |
-limit | INT | NO | Default 500; max 500.
+startTime | LONG | NO |
+endTime | LONG | NO |
+limit | INT | NO | Default 500; max 1000.
 recvWindow | LONG | NO |
 timestamp | LONG | YES |
 
-* If `orderId` is set, it will get orders >= that `orderId`.
-Otherwise most recent orders are returned.
+**Notes:**
+* If `orderId` is set, it will get orders >= that `orderId`. Otherwise most recent orders are returned.
+* For some historical orders `cummulativeQuoteQty` will be < 0, meaning the data is not available at this time.
 
 **Response:**
 ```javascript
@@ -1001,6 +1052,7 @@ Otherwise most recent orders are returned.
     "price": "0.1",
     "origQty": "1.0",
     "executedQty": "0.0",
+    "cummulativeQuoteQty": "0.0",
     "status": "NEW",
     "timeInForce": "GTC",
     "type": "LIMIT",
@@ -1008,6 +1060,7 @@ Otherwise most recent orders are returned.
     "stopPrice": "0.0",
     "icebergQty": "0.0",
     "time": 1499827319559,
+    "updateTime": 1499827319559,
     "isWorking": true
   }
 ]
@@ -1062,22 +1115,29 @@ GET /api/v3/myTrades  (HMAC SHA256)
 Get trades for a specific account and symbol.
 
 **Weight:**
-5
+5 with symbol
 
 **Parameters:**
 
 Name | Type | Mandatory | Description
 ------------ | ------------ | ------------ | ------------
 symbol | STRING | YES |
-limit | INT | NO | Default 500; max 500.
+startTime | LONG | NO |
+endTime | LONG | NO |
 fromId | LONG | NO | Trade ID to fetch from. Default gets most recent trades.
+limit | INT | NO | Default 500; max 1000.
 recvWindow | LONG | NO |
 timestamp | LONG | YES |
+
+**Notes:**
+* If `fromId` is set, it will get orders >= that `fromId`.
+Otherwise most recent orders are returned.
 
 **Response:**
 ```javascript
 [
   {
+    "symbol": "BNBBTC",
     "id": 28457,
     "orderId": 100234,
     "price": "4.00000100",
@@ -1181,6 +1241,24 @@ In order to pass the `price filter`, the following must be true for `price`/`sto
   }
 ```
 
+### PERCENT_PRICE
+The `PERCENT_PRICE` filter defines valid range for a price based on the average of the previous trades.
+`avgPriceMins` is the number of minutes the average price is calculated over. 0 means the last price is used.
+
+In order to pass the `percent price`, the following must be true for `price`:
+* `price` <= `weightedAveragePrice` * `multiplierUp`
+* `price` >= `weightedAveragePrice` * `multiplierDown`
+
+**/exchangeInfo format:**
+```javascript
+  {
+    "filterType": "PERCENT_PRICE",
+    "multiplierUp": "1.3000",
+    "multiplierDown": "0.7000",
+    "avgPriceMins": 5
+  }
+```
+
 ### LOT_SIZE
 The `LOT_SIZE` filter defines the `quantity` (aka "lots" in auction terms) rules for a symbol. There are 3 parts:
 
@@ -1207,12 +1285,52 @@ In order to pass the `lot size`, the following must be true for `quantity`/`iceb
 ### MIN_NOTIONAL
 The `MIN_NOTIONAL` filter defines the minimum notional value allowed for an order on a symbol.
 An order's notional value is the `price` * `quantity`.
+`applyToMarket` determines whether or not the `MIN_NOTIONAL` filter will also be applied to `MARKET` orders.
+Since `MARKET` orders have no price, the average price is used over the last `avgPriceMins` minutes.
+`avgPriceMins` is the number of minutes the average price is calculated over. 0 means the last price is used.
+
 
 **/exchangeInfo format:**
 ```javascript
   {
     "filterType": "MIN_NOTIONAL",
-    "minNotional": "0.00100000"
+    "minNotional": "0.00100000",
+    "applyToMarket": true,
+    "avgPriceMins": 5
+  }
+```
+
+### ICEBERG_PARTS
+The `ICEBERG_PARTS` filter defines the maximum parts an iceberg order can have. The number of `ICEBERG_PARTS` is defined as `CEIL(qty / icebergQty)`.
+
+**/exchangeInfo format:**
+```javascript
+  {
+    "filterType": "ICEBERG_PARTS",
+    "limit": 10
+  }
+```
+
+### MARKET_LOT_SIZE
+The `MARKET_LOT_SIZE` filter defines the `quantity` (aka "lots" in auction terms) rules for `MARKET` orders on a symbol. There are 3 parts:
+
+* `minQty` defines the minimum `quantity` allowed.
+* `maxQty` defines the maximum `quantity` allowed.
+* `stepSize` defines the intervals that a `quantity` can be increased/decreased by.
+
+In order to pass the `market lot size`, the following must be true for `quantity`:
+
+* `quantity` >= `minQty`
+* `quantity` <= `maxQty`
+* (`quantity`-`minQty`) % `stepSize` == 0
+
+**/exchangeInfo format:**
+```javascript
+  {
+    "filterType": "MARKET_LOT_SIZE",
+    "minQty": "0.00100000",
+    "maxQty": "100000.00000000",
+    "stepSize": "0.00100000"
   }
 ```
 
@@ -1228,15 +1346,27 @@ Note that both "algo" orders and normal orders are counted for this filter.
   }
 ```
 
-### MAX_ALGO_ORDERS
-The `MAX_ALGO_ORDERS` filter defines the maximum number of "algo" orders an account is allowed to have open on a symbol.
+### MAX_NUM_ALGO_ORDERS
+The `MAX_NUM_ALGO_ORDERS` filter defines the maximum number of "algo" orders an account is allowed to have open on a symbol.
 "Algo" orders are `STOP_LOSS`, `STOP_LOSS_LIMIT`, `TAKE_PROFIT`, and `TAKE_PROFIT_LIMIT` orders.
 
 **/exchangeInfo format:**
 ```javascript
   {
     "filterType": "MAX_ALGO_ORDERS",
-    "limit": 5
+    "maxNumAlgoOrders": 5
+  }
+```
+
+### MAX_NUM_ICEBERG_ORDERS
+The `MAX_NUM_ICEBERG_ORDERS` filter defines the maximum number of `ICEBERG` orders an account is allowed to have open on a symbol.
+An `ICEBERG` order is any order where the `icebergQty` is > 0.
+
+**/exchangeInfo format:**
+```javascript
+  {
+    "filterType": "MAX_NUM_ICEBERG_ORDERS",
+    "maxNumIcebergOrders": 5
   }
 ```
 
@@ -1249,11 +1379,11 @@ Note that both "algo" orders and normal orders are counted for this filter.
 ```javascript
   {
     "filterType": "EXCHANGE_MAX_NUM_ORDERS",
-    "limit": 1000
+    "maxNumOrders": 1000
   }
 ```
 
-### EXCHANGE_MAX_ALGO_ORDERS
+### EXCHANGE_MAX_NUM_ALGO_ORDERS
 The `MAX_ALGO_ORDERS` filter defines the maximum number of "algo" orders an account is allowed to have open on the exchange.
 "Algo" orders are `STOP_LOSS`, `STOP_LOSS_LIMIT`, `TAKE_PROFIT`, and `TAKE_PROFIT_LIMIT` orders.
 
@@ -1261,8 +1391,7 @@ The `MAX_ALGO_ORDERS` filter defines the maximum number of "algo" orders an acco
 ```javascript
   {
     "filterType": "EXCHANGE_MAX_ALGO_ORDERS",
-    "limit": 200
+    "maxNumAlgoOrders": 200
   }
 ```
-
 
